@@ -27,5 +27,21 @@ dR_tautau:
   x_title: \Delta R(\tau\tau)
   y_title: Events
   use_log_y: False
+  max_y_sf: 1.7
+  divide_by_bin_width: True
+
+tau1_rawDeepTau2017v2p1VSjet:
+  x_bins: "40|0.88:1"
+  x_title: \tau_{1} deepTauVSJet
+  y_title: Events
+  use_log_y: False
+  max_y_sf: 1.5
+  divide_by_bin_width: True
+
+tau1_rawDeepTau2018v2p5VSjet:
+  x_bins: "40|0.96:1"
+  x_title: \tau_{1} deepTauVSJet
+  y_title: Events
+  use_log_y: False
   max_y_sf: 1.5
   divide_by_bin_width: True

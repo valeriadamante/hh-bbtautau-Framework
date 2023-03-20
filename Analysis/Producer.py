@@ -6,7 +6,8 @@ import math
 from TauIDSFs_modifier import *
 
 
-weights_to_apply = ["weight_Central"]#,"weight_tau1_TrgSF_ditau_Central","weight_tau2_TrgSF_ditau_Central"]#, "weight_tauID_Central",]
+trg_weights = ["weight_tau1_TrgSF_ditau_Central","weight_tau2_TrgSF_ditau_Central"]
+weights_to_apply = ["weight_Central"]
 files= {
     "DY":["DY"],
     "Other":["EWK", "ST", "TTT", "TTTT", "TTVH", "TTV", "TTVV", "TTTV", "VH", "VV", "VVV", "H", "ttH"],
@@ -60,26 +61,23 @@ class AnaSkimmer:
     def skimAnatuple(self):
         self.df = self.df.Filter('HLT_ditau')
 
-def defineWeights(df_dict, use_new_weights=False, deepTauVersion='v2p1'):
+def defineWeights(df_dict, use_new_weights=False, deepTauVersion='v2p1', onlyWeightCentral = False, useTauIDWeight=False):
     for sample in df_dict.keys():
         weight_names=[]
-        if sample != "data":
+        if sample != "data" and useTauIDWeight:
             if(use_new_weights):
                 df_dict[sample] = GetNewSFs_DM(df_dict[sample],weights_to_apply, deepTauVersion)
-            '''
             else:
                 if "weight_tauID_Central" not in weights_to_apply:
                     weights_to_apply.append("weight_tauID_Central")
-            '''
+        if not onlyWeightCentral:
+            weights_to_apply.extend(trg_weights)
         for weight in weights_to_apply:
             weight_names.append(weight if sample!="data" else "1")
-            if weight == 'weight_Central' and weight in df_dict[sample].GetColumnNames():
+            if weight == 'weight_Central' and weight in df_dict[sample].GetColumnNames() and sample!="TT":
                 weight_names.append("1000")
-                if(sample=="TT"):
-                    weight_names.append('791. / 687.')
         weight_str = " * ".join(weight_names)
         df_dict[sample]=df_dict[sample].Define("weight",weight_str)
-
 
 
 def RenormalizeHistogram(histogram, norm, include_overflows=True):
@@ -150,7 +148,7 @@ def Estimate_QCD(histograms, sums):
         raise RuntimeError("Unable to estimate QCD")
     return hist_data_B
 
-def createHistograms(df_dict, var):
+def createHistograms(df_dict, var, plotter):
     hists = {}
     x_bins = plotter.hist_cfg[var]['x_bins']
     if type(plotter.hist_cfg[var]['x_bins'])==list:
@@ -182,10 +180,15 @@ if __name__ == "__main__":
     parser.add_argument('--period', required=False, type=str, default = 'Run2_2018')
     parser.add_argument('--version', required=False, type=str, default = 'v2_deepTau_v2p1')
     parser.add_argument('--vars', required=False, type=str, default = 'tau1_pt')
-    parser.add_argument('--mass', required=False, type=int, default=500)
+    parser.add_argument('--mass', required=False, type=int, default=320)
+    parser.add_argument('--signalScale', required=False, type=int, default=5)
     parser.add_argument('--new-weights', required=False, type=bool, default=False)
+    parser.add_argument('--onlyWeightCentral', required=False, type=bool, default=False)
+    parser.add_argument('--useTauIDWeight', required=False, type=bool, default=False)
+    parser.add_argument('--customName', required=False, type=str, default = '')
     args = parser.parse_args()
-    print(f"using new weights {args.new_weights}")
+    if args.new_weights:
+        print(f"using new weights")
     abs_path = os.environ['CENTRAL_STORAGE']
     anaTuplePath= f"/eos/home-k/kandroso/cms-hh-bbtautau/anaTuples/Run2_2018/{args.version}/"
     page_cfg = "config/plot/cms_stacked.yaml"
@@ -206,23 +209,26 @@ if __name__ == "__main__":
             for input in inputs_cfg_dict:
                 name = input['name']
                 if(name == sample):
-                    input['title']+= f"mass {args.mass}"
+                    input['title']+= f"mass {args.mass} GeV (\sigma = {args.signalScale} pb)"
+                    input['scale'] = args.signalScale
             anaskimmer.df = anaskimmer.df.Filter(f"X_mass=={args.mass}")
         anaskimmer.skimAnatuple()
         dataframes[sample] = anaskimmer.df
-    defineWeights(dataframes, args.new_weights,args.version.split('_')[-1])
+    defineWeights(dataframes, args.new_weights,args.version.split('_')[-1], args.onlyWeightCentral, args.useTauIDWeight)
 
     all_histograms = {}
     vars = args.vars.split(',')
     all_sums = createSums(dataframes)
 
     for var in vars:
-        hists = createHistograms(dataframes, var)
+        hists = createHistograms(dataframes, var, plotter)
         all_histograms[var] = hists
 
     hists_to_plot = {}
     all_histograms=GetValues(all_histograms)
     all_sums=GetValues(all_sums)
+    for sample in all_sums.keys():
+        print(sample, all_sums[sample]["region_A"])
     for var in vars:
         hists_to_plot[var] = {}
         for sample in all_histograms[var].keys():
@@ -230,6 +236,11 @@ if __name__ == "__main__":
                 hists_to_plot[var][sample] = all_histograms[var][sample]['region_A']
         hists_to_plot[var]['QCD'] = Estimate_QCD(all_histograms[var], all_sums)
         custom1= {'cat_text':'inclusive'}
-        plotter.plot(var, hists_to_plot[var], f"output/plots/{var}_XMass{args.mass}_{args.version}.pdf")#, custom=custom1)
+        fullName = f"{var}_XMass{args.mass}_deepTau{args.version.split('_')[-1]}"
+        if args.customName != "":
+            fullName += f"_{args.customName}"
+        if args.new_weights:
+            fullName += f"_newWeights"
+        plotter.plot(var, hists_to_plot[var], f"output/plots/{fullName}.pdf", custom=custom1)
         for sample in  hists_to_plot[var].keys():
-            print(f"{sample}, {hists_to_plot[var][sample].Integral()}")
+            print(f"{var}, {sample}, {hists_to_plot[var][sample].Integral()}")

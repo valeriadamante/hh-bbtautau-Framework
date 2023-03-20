@@ -1,0 +1,16 @@
+- name: 2tau
+  title: "2 #tau_{h}"
+  color: kAzure-9
+- name: 1tau1notau
+  title: "1 #tau_{h}"
+  color: kViolet+10
+- name: 2notau
+  title: "no #tau_{h}"
+  color: kYellow-7
+- name: GluGluToRadion
+  title: "Radion "
+  type: signal
+  color: kCyan
+- name: data
+  title: "data"
+  type: data

@@ -48,7 +48,7 @@ legend:
   font: 42
 
 ana_text:
-  text: "hh#rightarrowbb#tau#tau"
+  text: "X#rightarrowhh#rightarrowbb#tau#tau"
   pos_ref: inner_left_top
   pos: [ 0, -0.03 ]
   text_size: 0.02

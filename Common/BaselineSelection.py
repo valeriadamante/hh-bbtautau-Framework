@@ -201,8 +201,8 @@ def RecoHttCandidateSelection(df, config):
            .Define("Muon_iso", "Muon_pfRelIso04_all") \
            .Define("Tau_iso", "-Tau_rawDeepTau2017v2p1VSjet")
 
-    #df = df.Define("Electron_B2_eTau_1", f"Electron_B0 && v_ops::pt(Electron_p4) > 20 && Electron_mvaIso_WP80")
-    df = df.Define("Electron_B2_eTau_1", f"Electron_B0 && v_ops::pt(Electron_p4) > 20 && Electron_mvaNoIso_WP80 && Electron_pfRelIso03_all<0.1")
+    df = df.Define("Electron_B2_eTau_1", f"Electron_B0 && v_ops::pt(Electron_p4) > 20 && Electron_mvaIso_WP80")
+    #df = df.Define("Electron_B2_eTau_1", f"Electron_B0 && v_ops::pt(Electron_p4) > 20 && Electron_mvaNoIso_WP80 && Electron_pfRelIso03_all<0.1")
     df = df.Define("Tau_B2_eTau_2", f"""
         Tau_B0 && v_ops::pt(Tau_p4) > 20
         && (Tau_idDeepTau2017v2p1VSe >= {getattr(WorkingPointsTauVSe, config["deepTauWPs"]["eTau"]["VSe"]).value})
@@ -242,7 +242,7 @@ def RecoHttCandidateSelection(df, config):
     """)
 
     df = df.Define("Electron_B2_eMu_1", f"""
-        Electron_B0 && v_ops::pt(Electron_p4) > 20 && Electron_mvaNoIso_WP80 && Electron_pfRelIso03_all < 0.3
+        Electron_B0 && v_ops::pt(Electron_p4) > 20 && Electron_mvaIso_WP80
     """)
     df = df.Define("Muon_B2_eMu_2", f"""
         Muon_B0 && v_ops::pt(Muon_p4) > 20 && (   (Muon_tightId && Muon_pfRelIso04_all < 0.15)
@@ -250,7 +250,7 @@ def RecoHttCandidateSelection(df, config):
     """)
 
     df = df.Define("Electron_B2_eE_1", f"""
-        Electron_B0 && v_ops::pt(Electron_p4) > 20 &&  Electron_mvaNoIso_WP80 && Electron_pfRelIso03_all < 0.15
+        Electron_B0 && v_ops::pt(Electron_p4) > 20 &&  Electron_mvaIso_WP80
     """)
     df = df.Define("Electron_B2_eE_2", f"""
                     Electron_B2_eE_1

@@ -28,10 +28,10 @@
 #  color: kGreen
 - name: QCD
   title: QCD
-  color: kMagenta
+  color: kPink+1
 - name: Other
   title: "other backgrounds"
-  color: kPink+1
+  color: kMagenta
 - name: data
   title: "data"
   type: data

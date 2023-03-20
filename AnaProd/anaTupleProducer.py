@@ -3,6 +3,7 @@ import datetime
 import os
 import sys
 import ROOT
+import zlib
 
 if __name__ == "__main__":
     sys.path.append(os.environ['ANALYSIS_PATH'])
@@ -28,7 +29,7 @@ JetObservables = ["particleNetAK4_B", "particleNetAK4_CvsB",
                 "btagDeepFlavB","btagDeepFlavCvB","btagDeepFlavCvL"]
 JetObservablesMC = ["hadronFlavour","partonFlavour"]
 
-defaultColToSave = ["event","luminosityBlock","run", "sample_type", "period", "X_mass", "isData",
+defaultColToSave = ["event","luminosityBlock","run", "sample_type", "sample_name", "period", "X_mass", "isData",
                 "MET_pt", "MET_phi","PuppiMET_pt", "PuppiMET_phi",
                 "DeepMETResolutionTune_pt", "DeepMETResolutionTune_phi","DeepMETResponseTune_pt", "DeepMETResponseTune_phi",
                 "MET_covXX", "MET_covXY", "MET_covYY", "PV_npvs"]
@@ -141,6 +142,7 @@ def createAnatuple(inFile, outFile, config, sample_name, anaCache, snapshotOptio
 
     df = Baseline.applyMETFlags(df, config["GLOBAL"]["MET_flags"])
     df = df.Define("sample_type", f"static_cast<int>(SampleType::{config[sample_name]['sampleType']})")
+    df = df.Define("sample_name", f"{zlib.crc32(str.encode(sample_name))}")
     df = df.Define("period", f"static_cast<int>(Period::{period})")
     df = df.Define("X_mass", f"static_cast<int>({mass})")
     is_data = 'true' if isData else 'false'
