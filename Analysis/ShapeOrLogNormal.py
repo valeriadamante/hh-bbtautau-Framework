@@ -10,21 +10,23 @@ if __name__ == "__main__":
 from Analysis.HistHelper import *
 unc_to_not_consider_boosted = ["PUJetID", "JER","JES_FlavorQCD","JES_RelativeBal","JES_HF","JES_BBEC1","JES_EC2","JES_Absolute","JES_Total","JES_BBEC1_2018","JES_Absolute_2018","JES_EC2_2018","JES_HF_2018","JES_RelativeSample_2018","bTagSF_Loose_btagSFbc_correlated",  "bTagSF_Loose_btagSFbc_uncorrelated",  "bTagSF_Loose_btagSFlight_correlated",  "bTagSF_Loose_btagSFlight_uncorrelated",  "bTagSF_Medium_btagSFbc_correlated",  "bTagSF_Medium_btagSFbc_uncorrelated",  "bTagSF_Medium_btagSFlight_correlated",  "bTagSF_Medium_btagSFlight_uncorrelated",  "bTagSF_Tight_btagSFbc_correlated",  "bTagSF_Tight_btagSFbc_uncorrelated",  "bTagSF_Tight_btagSFlight_correlated",  "bTagSF_Tight_btagSFlight_uncorrelated","bTagShapeSF_lf","bTagShapeSF_hf","bTagShapeSF_lfstats1","bTagShapeSF_lfstats2","bTagShapeSF_hfstats1","bTagShapeSF_hfstats2","bTagShapeSF_cferr1","bTagShapeSF_cferr2"]
 
-def GetHisto(channel, category, inFileName, inDir, sample_name, uncSource, scale):
-    inFile = ROOT.TFile(os.path.join(inDir, inFileName),"READ")
-    dir_0 = inFile.Get(channel)
-    dir_1 = dir_0.Get(category)
-    #print(channel, category)
-    total_histName = sample_name
+def GetHisto(channel, category, inFileName, sample_name, uncSource, scale):
+    inFile = ROOT.TFile(inFileName,"READ")
     #print([str(key.GetName()) for key in inFile.GetListOfKeys()])
+    dir_0 = inFile.Get(channel)
     #print([str(key.GetName()) for key in dir_0.GetListOfKeys()])
+    dir_1 = dir_0.Get(category)
     #print([str(key.GetName()) for key in dir_1.GetListOfKeys()])
+    #print(f"channel is {channel}")
+    #print(f"category is {category}")
+    total_histName = sample_name
     if uncSource != 'Central':
         total_histName += f'_{uncSource}{scale}'
     for key in dir_1.GetListOfKeys():
         key_name = key.GetName()
-        #print(key_name, total_histName)
         if key_name != total_histName: continue
+        #print(f"key name is {key_name}")
+        #print(f"total histname is {total_histName}")
         obj = key.ReadObj()
         if obj.IsA().InheritsFrom(ROOT.TH1.Class()):
             obj.SetDirectory(0)
@@ -32,14 +34,14 @@ def GetHisto(channel, category, inFileName, inDir, sample_name, uncSource, scale
             return obj
     return
 
-def GetShiftedRatios(channel, category, inFileName_Central, inDir, sample_name,uncSource):
-    hist_central = GetHisto(channel, category, inFileName_Central, inDir, sample_name, 'Central','-')
-    #print(hist_central.GetNbinsX())
-    hist_up = GetHisto(channel, category, inFileName, inDir, sample_name, uncSource,'Up')
+def GetShiftedRatios(channel, category, inFileName_Central, inFileName, sample_name,uncSource):
+    hist_central = GetHisto(channel, category, inFileName_Central, sample_name, 'Central','-')
+    ##print(hist_central.GetNbinsX())
+    hist_up = GetHisto(channel, category, inFileName, sample_name, uncSource,'Up')
     #print(hist_up.GetNbinsX())
     hist_up_ratio = hist_up.Clone("hist_ratio_up")
     hist_up_ratio.Divide(hist_central)
-    hist_down = GetHisto(channel, category, inFileName, inDir, sample_name, uncSource,'Down')
+    hist_down = GetHisto(channel, category, inFileName, sample_name, uncSource,'Down')
     hist_down_ratio = hist_down.Clone("hist_ratio_down")
     hist_down_ratio.Divide(hist_central)
     return hist_central,hist_up_ratio,hist_up,hist_down_ratio,hist_down
@@ -130,67 +132,65 @@ if __name__ == "__main__":
     import json
     import yaml
     parser = argparse.ArgumentParser()
-    parser.add_argument('--histDir', required=True)
-    parser.add_argument('--outDir', required=True)
-    parser.add_argument('--inFileName', required=True)
+    parser.add_argument('inputFile', nargs='+', type=str)
+    parser.add_argument('--centralFile', required=True)
+    parser.add_argument('--jsonFile', required=True)
+    parser.add_argument('--uncSources', required=True)
     parser.add_argument('--mass', required=False, type=int, default=1250)
-    parser.add_argument('--sampleConfig', required=True, type=str)
+    parser.add_argument('--histConfig', required=True, type=str)
     parser.add_argument('--uncConfig', required=True, type=str)
+    parser.add_argument('--var', required=True, type=str)
+    parser.add_argument('--sampleConfig', required=True, type=str)
     parser.add_argument('--wantBTag', required=False, type=bool, default=False)
-    parser.add_argument('--suffix', required=False, type=str, default='')
-    parser.add_argument('--var', required=False, type=str, default='tau1_pt')
     args = parser.parse_args()
     ROOT.gStyle.SetOptFit(0)
     ROOT.gStyle.SetOptStat(0)
 
-    hist_cfg = os.path.join(os.environ['ANALYSIS_PATH'],"config/plot/histograms.yaml")
-    with open(hist_cfg, 'r') as f:
+    hist_cfg_dict = {}
+    with open(args.histConfig, 'r') as f:
         hist_cfg_dict = yaml.safe_load(f)
-
+    sample_cfg_dict = {}
     with open(args.sampleConfig, 'r') as f:
         sample_cfg_dict = yaml.safe_load(f)
-    signals = list(sample_cfg_dict['GLOBAL']['signal_types'])
-    all_samples_list,all_samples_types = GetSamplesStuff(sample_cfg_dict,args.histDir,True,True,False)
+    unc_cfg_dict = {}
+    with open(args.uncConfig, 'r') as f:
+        unc_cfg_dict = yaml.safe_load(f)
+
+
+    wantSignals=False
+    wantAllMasses=False
+    wantOneMass=False
+    all_samples_list,all_samples_types = GetSamplesStuff(sample_cfg_dict, wantSignals, wantAllMasses, wantOneMass)
     all_histlist = {}
     histNamesDict = {}
-    #all_vars = list(hist_cfg_dict.keys())
     unc_cfg_dict = {}
     with open(args.uncConfig, 'r') as f:
         unc_cfg_dict = yaml.safe_load(f)
     all_uncertainties = list(unc_cfg_dict['norm'].keys())
     all_uncertainties.extend(unc_cfg_dict['shape'])
-    #print(all_uncertainties)
+
 
     categories = list(sample_cfg_dict['GLOBAL']['categories'])
-    #print(categories)
-    btag_dir= "bTag_WP" if args.wantBTag else "bTag_shape"
-    #print(btag_dir)
-    #print(args.histDir,all_samples_types)
-    unc_dict = {}
-    for sample in all_samples_list:
-        if sample == 'data': continue
-        for uncSource in all_uncertainties:
-            #print(uncSource)
-            inFileName=f'{args.inFileName}_{args.var}_{uncSource}{args.suffix}.root'
-            #print(inFileName)
-            inDir = os.path.join(args.histDir, 'all_histograms',args.var,btag_dir)
-            #print(inDir)
-            inFileName_Central=f'{args.inFileName}_{args.var}_Central{args.suffix}.root'
-            #print(inFileName_Central)
-            #print(os.path.join(inDir,inFileName))
-            if not os.path.exists(os.path.join(inDir,inFileName)): continue
-            #inFileName_Central=f'{args.inFileName}_{args.var}_Central{args.suffix}.root'
-            sample_name = sample
-            for channel in ['eTau', 'muTau', 'tauTau']:
-                for category in ['inclusive','res2b','res1b','boosted']:
-                    #if category=='boosted': continue
-                    if category == 'boosted' and uncSource in unc_to_not_consider_boosted: continue
-                    #print(channel, category, uncSource, sample_name)
+    QCDregions = list(sample_cfg_dict['GLOBAL']['QCDRegions'])
+    channels = list(sample_cfg_dict['GLOBAL']['channelSelection'])
+    signals = list(sample_cfg_dict['GLOBAL']['signal_types'])
 
-                    hist_central,hist_up_ratio,hist_up,hist_down_ratio,hist_down = GetShiftedRatios(channel, category, inFileName_Central, inDir, sample_name,uncSource)
+    unc_dict = {}
+    all_files = [ fileName for fileName in args.inputFile ]
+    all_uncsources = args.uncSources.split(",")
+    inFileName_Central = args.centralFile
+    for inFile,uncSource in zip(all_files, all_uncsources):
+        #print(f"uncSource is {uncSource}")
+        for sample in all_samples_list:
+            #print(f"sample is {sample}")
+            if sample == 'data': continue
+            sample_name = sample
+            for channel in channels:
+                for category in categories:
+                    if category == 'boosted' and uncSource in unc_to_not_consider_boosted: continue
+                    hist_central,hist_up_ratio,hist_up,hist_down_ratio,hist_down = GetShiftedRatios(channel, category, inFileName_Central, inFile, sample_name,uncSource)
                     GetChi2Method(hist_central,hist_up_ratio,hist_up,hist_down_ratio,hist_down, sample_name, channel, category, uncSource, unc_dict)
-    outDir = os.path.join(args.outDir, args.var, btag_dir)
-    if not os.path.exists(outDir):
-        os.makedirs(outDir)
-    with open(f'{outDir}/slopeInfo.json', 'w') as f:
-        json.dump(unc_dict, f, indent=4)
+
+
+    with open(args.jsonFile, 'w') as json_f:
+        json.dump(unc_dict, json_f, indent=4)

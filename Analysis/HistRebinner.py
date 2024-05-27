@@ -72,12 +72,10 @@ if __name__ == "__main__":
     parser.add_argument('--sampleConfig', required=True, type=str)
     parser.add_argument('--uncConfig', required=True, type=str)
     parser.add_argument('--histConfig', required=True, type=str)
-    parser.add_argument('--suffix', required=False, type=str, default='')
     parser.add_argument('--uncSource', required=False, type=str, default='')
     parser.add_argument('--var', required=False, type=str, default='kinFit_m')
     parser.add_argument('--category', required=False, type=str, default='')
     parser.add_argument('--channel', required=False, type=str, default='')
-    parser.add_argument('--wantBTag', required=False, type=bool, default=False)
     args = parser.parse_args()
     ROOT.gStyle.SetOptFit(0)
     ROOT.gStyle.SetOptStat(0)
@@ -102,14 +100,13 @@ if __name__ == "__main__":
     all_uncertainties.extend(unc_cfg_dict['shape'])
 
     categories = list(sample_cfg_dict['GLOBAL']['categories'])
-    btag_dir= "bTag_WP" if args.wantBTag else "bTag_shape"
     unc_dict = {}
 
 
     outfile  = ROOT.TFile(args.outFile,'RECREATE')
     scales_to_consider = scales if args.uncSource !='Central' else ['Central']
     #print(all_samples_list)
-    print(f"{args.inFile}")
+    #print(f"{args.inFile}")
     if not os.path.exists(args.inFile):
         print(f"{args.inFile} does not exist")
     else:
@@ -135,7 +132,7 @@ if __name__ == "__main__":
                             hist_name+=f"_{args.uncSource}{uncScale}"
                         uncScale_str = '-' if args.uncSource=='Central' else uncScale
                         #print(channel, category, uncScale, sample_type, uncScale_str)
-                        print(f'hist name = {hist_name}')
+                        #print(f'hist name = {hist_name}')
 
                         hist_initial = GetHisto(channel, category, inFile, hist_name, args.uncSource,uncScale_str)
                         #print(f'hist initial entries = {hist_initial.GetEntries()}')

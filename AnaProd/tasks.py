@@ -292,12 +292,13 @@ class AnaCacheTupleTask(Task, HTCondorWorkflow, law.LocalWorkflow):
         unc_config = os.path.join(self.ana_path(), 'config', f'weight_definition_{getYear(self.period)}.yaml')
         unc_cfg_dict = load_unc_config(unc_config)
         producer_anacachetuples = os.path.join(self.ana_path(), 'AnaProd', 'anaCacheTupleProducer.py')
-
+        print(sample_name, sample_type,prod_br)
         thread = threading.Thread(target=update_kinit_thread)
         thread.start()
         try:
             job_home, remove_job_home = self.law_job_home()
             input_file = self.input()[0]
+            print(input_file)
             with input_file.localize("r") as local_input, self.output().localize("w") as outFile:
                 anaCacheTupleProducer_cmd = ['python3', producer_anacachetuples,'--inFileName', local_input.path, '--outFileName', outFile.path,  '--uncConfig', unc_config]
                 if sample_name !='data':

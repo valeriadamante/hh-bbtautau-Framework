@@ -74,9 +74,7 @@ def SaveHists(histograms, out_file):
 
 def GetHistogramDictFromDataframes(var, all_dataframes, key_2 , key_filter_dict, unc_cfg_dict,hist_cfg_dict, wantBTag=False, want2D=False, furtherCut=''):
     dataframes = all_dataframes[key_2]
-    #print(dataframes)
     sample_type,uncName,scale = key_2
-    #print(key_2)
     isCentral = 'Central' in key_2
     histograms = {}
 
@@ -87,7 +85,6 @@ def GetHistogramDictFromDataframes(var, all_dataframes, key_2 , key_filter_dict,
         if cat == 'boosted' and uncName in unc_to_not_consider_boosted: continue
         if cat != 'boosted' and var in var_to_add_boosted: continue
 
-        #print(var, cat, uncName)
         total_weight_expression = GetWeight(ch,cat) if sample_type!='data' else "1"
         weight_name = "final_weight"
         if not isCentral:
@@ -96,8 +93,6 @@ def GetHistogramDictFromDataframes(var, all_dataframes, key_2 , key_filter_dict,
                     weight_name = unc_cfg_dict[uncName]['expression'].format(scale=scale)
         if (key_1, key_2) not in histograms.keys():
             histograms[(key_1, key_2)] = []
-        #total_weight_expression = GetWeight(ch,cat) if sample_type!='data' else "1"
-        #print(key_1, key_2)
         for dataframe in dataframes:
             if "weight_tau1_TrgSF_singleTau_Central" not in dataframe.GetColumnNames():
                 dataframe=dataframe.Define("weight_tau1_TrgSF_singleTau_Central","1.f")
@@ -108,7 +103,6 @@ def GetHistogramDictFromDataframes(var, all_dataframes, key_2 , key_filter_dict,
             dataframe_new = dataframe_new.Define(f"final_weight_0_{ch}_{cat}_{reg}", f"{total_weight_expression}")
             final_string_weight = ApplyBTagWeight(cat,applyBtag=wantBTag, finalWeight_name = f"final_weight_0_{ch}_{cat}_{reg}") if sample_type!='data' else "1"
             dataframe_new = dataframe_new.Filter(f"{cat}")
-            #weight_name = "final_weight"
             if cat == 'btag_shape':
                 final_string_weight = f"final_weight_0_{ch}_{cat}_{reg}"
             #print(weight_name)
@@ -149,10 +143,10 @@ def GetShapeDataFrameDict(all_dataframes, key, key_central, inFile, inFileCache,
         #print(file_keys)
         treeName = f"Events_{uncName}{scale}"
         #treeName = f"Events_nanoHTT_{uncName}{scale}"
-        print(treeName)
+        #print(treeName)
         treeName_noDiff = f"{treeName}_noDiff"
         if treeName_noDiff in file_keys:
-            print(treeName_noDiff)
+            #print(treeName_noDiff)
             dfWrapped_noDiff = DataFrameBuilder(ROOT.RDataFrame(treeName_noDiff, inFile))
             dfWrapped_noDiff.CreateFromDelta(colNames, colTypes)
             if hasCache:
@@ -163,7 +157,7 @@ def GetShapeDataFrameDict(all_dataframes, key, key_central, inFile, inFileCache,
 
         treeName_Valid = f"{treeName}_Valid"
         if treeName_Valid in file_keys:
-            print(treeName_Valid)
+            #print(treeName_Valid)
             dfWrapped_Valid = DataFrameBuilder(ROOT.RDataFrame(treeName_Valid, inFile))
             dfWrapped_Valid.CreateFromDelta(colNames, colTypes)
             if hasCache:
@@ -174,7 +168,7 @@ def GetShapeDataFrameDict(all_dataframes, key, key_central, inFile, inFileCache,
 
         treeName_nonValid = f"{treeName}_nonValid"
         if treeName_nonValid in file_keys:
-            print(treeName_nonValid)
+            #print(treeName_nonValid)
             dfWrapped_nonValid = DataFrameBuilder(ROOT.RDataFrame(treeName_nonValid, inFile))
             if hasCache:
                 dfWrapped_cache_nonValid = DataFrameBuilder(ROOT.RDataFrame(treeName_nonValid,inFileCache), args.deepTauVersion)
@@ -227,15 +221,6 @@ if __name__ == "__main__":
     unc_cfg_dict = {}
     with open(args.uncConfig, 'r') as f:
         unc_cfg_dict = yaml.safe_load(f)
-
-    btag_dir= "bTag_WP" if args.wantBTag else "bTag_shape"
-
-    #finalDir = os.path.join(args.outDir, args.var, btag_dir)
-    #if not os.path.isdir(finalDir):
-        #os.makedirs(finalDir)
-
-    #finalFileName =f'{finalDir}/{args.outFileName}2D.root' if args.want2D else f'{finalDir}/{args.outFileName}.root'
-    #print(f"final file name is = {finalFileName}")
 
     # central hist definition
     create_new_hist = False
