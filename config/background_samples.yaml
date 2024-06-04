@@ -1,17 +1,5 @@
-
-DYJetsToLL_M-10to50-madgraphMLM:
-  sampleType: DY
-DY1JetsToLL_M-50-madgraphMLM:
-  sampleType: DY
-DY2JetsToLL_M-50-madgraphMLM:
-  sampleType: DY
-DY3JetsToLL_M-50-madgraphMLM:
-  sampleType: DY
-DY4JetsToLL_M-50-madgraphMLM:
-  sampleType: DY
 DYJetsToLL_M-50-amcatnloFXFX:
   sampleType: DY
-  isReference: true
 DYJetsToLL_0J-amcatnloFXFX:
   sampleType: DY
 DYJetsToLL_1J-amcatnloFXFX:
@@ -63,9 +51,6 @@ ZZ:
 #ZZTo4Q:
 #  sampleType: VV
 
-GluGluToHHTo2B2Tau_node_SM:
-  sampleType: HHnonRes
-
 ZH_Hbb_Zll:
   sampleType: VH
 ZH_Hbb_Zqq:
@@ -83,8 +68,7 @@ WminusHToTauTau_M125:
   sampleType: VH
 ZHToTauTau_M125:
   sampleType: VH
-ZHToTauTau_M125_ext1:
-  sampleType: VH
+  hasExt1: True
 
 GluGluHToWWTo2L2Nu_M125:
   sampleType: H
@@ -96,12 +80,10 @@ HWminusJ_HToWW_M125:
   sampleType: H
 HZJ_HToWW_M125:
   sampleType: VH
-HZJ_HToWW_M125_ext1:
-  sampleType: VH
+  hasExt1: True
 GluGluZH_HToWW_ZTo2L_M125:
   sampleType: VH
-GluGluZH_HToWW_ZTo2L_M125_ext1:
-  sampleType: VH
+  hasExt1: True
 
 #ttHToNonbb_M125:
 #  sampleType: ttH
@@ -119,10 +101,6 @@ ST_tW_top_5f_InclusiveDecays:
 #ST_tW_top_5f_NoFullyHadronicDecays:
 #  sampleType: ST
 
-ST_t-channel_antitop_4f_InclusiveDecays_erdON:
-  sampleType: ST
-ST_t-channel_top_4f_InclusiveDecays_erdON:
-  sampleType: ST
 ST_t-channel_antitop_4f_InclusiveDecays:
   sampleType: ST
 ST_t-channel_top_4f_InclusiveDecays:
@@ -156,19 +134,19 @@ TTZZ:
 
 WWW_4F:
   sampleType: VVV
-WWW_4F_ext1:
+  hasExt1: True
   sampleType: VVV
 WWZ_4F:
   sampleType: VVV
-WWZ_4F_ext1:
+  hasExt1: True
   sampleType: VVV
 WZZ:
   sampleType: VVV
-WZZ_ext1:
+  hasExt1: True
   sampleType: VVV
 ZZZ:
   sampleType: VVV
-ZZZ_ext1:
+  hasExt1: True
   sampleType: VVV
 
 WJetsToLNu:
@@ -216,15 +194,6 @@ EWK_ZTo2L:
 EWK_ZTo2Nu:
   sampleType: EWK
 
-ZJetsToQQ_HT-200to400:
-  sampleType: ZQQ
-ZJetsToQQ_HT-400to600:
-  sampleType: ZQQ
-ZJetsToQQ_HT-600to800:
-  sampleType: ZQQ
-ZJetsToQQ_HT-800toInf:
-  sampleType: ZQQ
-
 ZJetsToNuNu_HT-100To200:
   sampleType: ZJNuNu
 ZJetsToNuNu_HT-1200To2500:
@@ -240,15 +209,7 @@ ZJetsToNuNu_HT-600To800:
 ZJetsToNuNu_HT-800To1200:
   sampleType: ZJNuNu
 
-TTZToBB:
-  sampleType: TTV
 TTZToNuNu:
-  sampleType: TTV
-TTZToQQ_Dilept:
-  sampleType: TTV
-TTGJets:
-  sampleType: TTV
-TTGJets_ext1:
   sampleType: TTV
 TTGamma_Dilept:
   sampleType: TTV
@@ -268,11 +229,13 @@ TTGG:
   sampleType: TTVV
 TTZZTo4b:
   sampleType: TTVV
-TTZZTo4b_ext1:
+TTZZTo4b:
+  hasExt1: True
   sampleType: TTVV
 TTZZToNon4b:
   sampleType: TTVV
-TTZHTo4b_ext1:
+TTZHTo4b:
+  hasExt1: True
   sampleType: TTVV
 TTWH:
   sampleType: TTVH
@@ -282,3 +245,5 @@ TTZHToNon4b:
   sampleType: TTVH
 TTZH:
   sampleType: TTVH
+
+
