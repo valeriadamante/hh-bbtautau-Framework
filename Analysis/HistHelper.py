@@ -12,6 +12,7 @@ unc_2018 = ['JES_BBEC1_2018', 'JES_Absolute_2018', 'JES_EC2_2018', 'JES_HF_2018'
 unc_2017 = ['JES_BBEC1_2017', 'JES_Absolute_2017', 'JES_EC2_2017', 'JES_HF_2017', 'JES_RelativeSample_2017' ]
 unc_2016preVFP = ['JES_BBEC1_2016preVFP', 'JES_Absolute_2016preVFP', 'JES_EC2_2016preVFP', 'JES_HF_2016preVFP', 'JES_RelativeSample_2016preVFP' ]
 unc_2016postVFP = ['JES_BBEC1_2016postVFP', 'JES_Absolute_2016postVFP', 'JES_EC2_2016postVFP', 'JES_HF_2016postVFP', 'JES_RelativeSample_2016postVFP' ]
+sample_types_to_merge = ['DY','TT','ZJNuNu','ZQQ','W', 'ttH']
 
 uncs_to_exclude = {
     'Run2_2018': unc_2017+ unc_2016preVFP + unc_2016postVFP,
@@ -34,7 +35,12 @@ def GetSamplesStuff(sample_cfg_dict,wantSignals=True,wantAllMasses=True,wantOneM
         if sample == 'GLOBAL' : continue
         if 'sampleType' not in sample_cfg_dict[sample].keys(): continue
         sample_type = sample_cfg_dict[sample]['sampleType']
-        if sample_type =='data': continue
+        if sample_type in ['QCD', 'VBFToRadion','VBFToBulkGraviton', 'data']: continue
+        if sample != 'GluGluToHHTo2B2Tau_node_SM' and sample_type == 'HHnonRes': continue
+        if sample == "W0JetsToLNu-amcatnloFXFX": continue
+        if sample == "W1JetsToLNu-amcatnloFXFX": continue
+        if sample == "W2JetsToLNu-amcatnloFXFX": continue
+        sample_name = sample_type if sample_type in ['DY','TT','ZJNuNu','ZQQ','W'] else sample
         if wantOneMass:
             if 'mass' in sample_cfg_dict[sample].keys():
                 if sample_type in signals and sample_cfg_dict[sample]['mass']!=mass : continue
@@ -43,14 +49,16 @@ def GetSamplesStuff(sample_cfg_dict,wantSignals=True,wantAllMasses=True,wantOneM
         isSignal = False
         if sample_type in signals:
             isSignal = True
-            sample_type=sample
             if not wantSignals: continue
-        if sample_type not in all_samples_types.keys() :
-            all_samples_types[sample_type] = []
-        all_samples_types[sample_type].append(sample)
+            sample_name=sample
+        if sample_name not in all_samples_types.keys() :
+            all_samples_types[sample_name] = []
+        all_samples_types[sample_name].append(sample)
         if not wantAllMasses and isSignal: continue
         if sample_type in all_samples_list: continue
-        all_samples_list.append(sample_type)
+        all_samples_list.append(sample_name)
+        #print(sample_type, sample_name, all_samples_types)
+    print(all_samples_types)
     return all_samples_list, all_samples_types
 
 

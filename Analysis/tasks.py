@@ -335,9 +335,11 @@ class MergeTask(Task, HTCondorWorkflow, law.LocalWorkflow):
             if sample_name == "W0JetsToLNu-amcatnloFXFX": continue
             if sample_name == "W1JetsToLNu-amcatnloFXFX": continue
             if sample_name == "W2JetsToLNu-amcatnloFXFX": continue
+            if 'TTHHTo2B2Tau_HEFT' in sample_name: continue
             if sample_name != 'GluGluToHHTo2B2Tau_node_SM' and self.samples[sample_name]['sampleType'] == 'HHnonRes': continue
             #is sample_name == 'TTGJets': continue
             #is sample_name == 'TTGJets_ext1': continue
+            #print(sample_name)
             outDir_histProdSample = os.path.join('histograms', self.period, sample_name, self.version, var, self.GetBTagDir())
             outFileName_histProdSample = f'{var}.root'
             all_inputs.append((remote_file_target(os.path.join(outDir_histProdSample,outFileName_histProdSample), self.fs_files),sample_name))
@@ -464,10 +466,12 @@ class HaddMergedTask(Task, HTCondorWorkflow, law.LocalWorkflow):
         #    inDir_Signal = os.path.join('histograms', self.period, 'all_histograms', self.version, var, self.GetBTagDir())
         for uncName in uncNames:
             if uncName in uncs_to_exclude[self.period]: continue
-            inFileName =  f'all_histograms_{var}_{uncName}_Rebinned.root' if var ==  'kinFit_m' else f'all_histograms_{var}_{uncName}.root'
+            inFileName =  f'all_histograms_{var}_{uncName}.root'
+            #inFileName =  f'all_histograms_{var}_{uncName}_Rebinned.root' if var ==  'kinFit_m' else f'all_histograms_{var}_{uncName}.root'
             all_inputs.append(remote_file_target(os.path.join(inDir_allHistograms,inFileName), self.fs_files))
             all_uncertainties.append(uncName)
-        inFileNameCentral =  f'all_histograms_{var}_Central_Rebinned.root' if var ==  'kinFit_m' else f'all_histograms_{var}_Central.root'
+        inFileNameCentral = f'all_histograms_{var}_Central.root'
+        #inFileNameCentral =  f'all_histograms_{var}_Central_Rebinned.root' if var ==  'kinFit_m' else f'all_histograms_{var}_Central.root'
         inFileCentral = os.path.join(inDir_allHistograms,inFileNameCentral)
 
         all_uncertainties_string = ','.join(unc for unc in all_uncertainties)
@@ -478,10 +482,10 @@ class HaddMergedTask(Task, HTCondorWorkflow, law.LocalWorkflow):
             local_inputs = []
             for inp in all_inputs:
                 local_inputs.append(stack.enter_context(inp.localize('r')).path)
-            with remote_file_target(jsonFile_name, self.fs_files).localize("w") as json_file, remote_file_target(inFileCentral,self.fs_files).localize("r") as central_file:
-                ShapeOrLogNormalProducer_cmd = ['python3', ShapeOrLogNormalProducer,'--centralFile', central_file.path, '--jsonFile', json_file.path, '--mass',self.mass, '--histConfig', self.hist_config, '--uncSources', all_uncertainties_string,'--uncConfig', unc_config, '--sampleConfig', sample_config, '--var', var]
-                ShapeOrLogNormalProducer_cmd.extend(local_inputs)
-                ps_call(ShapeOrLogNormalProducer_cmd,verbose=1)
+            #with remote_file_target(jsonFile_name, self.fs_files).localize("w") as json_file, remote_file_target(inFileCentral,self.fs_files).localize("r") as central_file:
+            #    ShapeOrLogNormalProducer_cmd = ['python3', ShapeOrLogNormalProducer,'--centralFile', central_file.path, '--jsonFile', json_file.path, '--mass',self.mass, '--histConfig', self.hist_config, '--uncSources', all_uncertainties_string,'--uncConfig', unc_config, '--sampleConfig', sample_config, '--var', var]
+            #    ShapeOrLogNormalProducer_cmd.extend(local_inputs)
+                #ps_call(ShapeOrLogNormalProducer_cmd,verbose=1)
             with self.output().localize("w") as outFile:
                 HaddMergedHistsProducer_cmd = ['python3', HaddMergedHistsProducer,'--outFile', outFile.path, '--var', var]
                 HaddMergedHistsProducer_cmd.extend(local_inputs)

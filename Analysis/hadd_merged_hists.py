@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
 
     all_files = [ fileName for fileName in args.inputFile ]
-    hadd_str = f'hadd -f209 {args.outFile} '
+    hadd_str = f'hadd -f209 -n 10 {args.outFile} '
     hadd_str += ' '.join(f for f in all_files)
     print(hadd_str)
     if len(all_files) > 1:

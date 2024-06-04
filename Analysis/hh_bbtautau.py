@@ -44,7 +44,8 @@ mass_cut_limits = {'bb_m_vis':[50,270],'tautau_m_vis':[20,130]}
 scales = ['Up', 'Down']
 bjet_vars = ["b1_pt","b2_pt","b1_eta","b2_eta"]
 var_to_add_boosted= ["SelectedFatJet_pt_boosted","SelectedFatJet_eta_boosted"]
-unc_to_not_consider_boosted = ["PUJetID", "JER","JES_FlavorQCD","JES_RelativeBal","JES_HF","JES_BBEC1","JES_EC2","JES_Absolute","JES_Total","JES_BBEC1_2018","JES_Absolute_2018","JES_EC2_2018","JES_HF_2018","JES_RelativeSample_2018","bTagSF_Loose_btagSFbc_correlated",  "bTagSF_Loose_btagSFbc_uncorrelated",  "bTagSF_Loose_btagSFlight_correlated",  "bTagSF_Loose_btagSFlight_uncorrelated",  "bTagSF_Medium_btagSFbc_correlated",  "bTagSF_Medium_btagSFbc_uncorrelated",  "bTagSF_Medium_btagSFlight_correlated",  "bTagSF_Medium_btagSFlight_uncorrelated",  "bTagSF_Tight_btagSFbc_correlated",  "bTagSF_Tight_btagSFbc_uncorrelated",  "bTagSF_Tight_btagSFlight_correlated",  "bTagSF_Tight_btagSFlight_uncorrelated","bTagShapeSF_lf","bTagShapeSF_hf","bTagShapeSF_lfstats1","bTagShapeSF_lfstats2","bTagShapeSF_hfstats1","bTagShapeSF_hfstats2","bTagShapeSF_cferr1","bTagShapeSF_cferr2"]
+#unc_to_not_consider_boosted = ["PUJetID", "JER","JES_FlavorQCD","JES_RelativeBal","JES_HF","JES_BBEC1","JES_EC2","JES_Absolute","JES_Total","JES_BBEC1_2018","JES_Absolute_2018","JES_EC2_2018","JES_HF_2018","JES_RelativeSample_2018","bTagSF_Loose_btagSFbc_correlated",  "bTagSF_Loose_btagSFbc_uncorrelated",  "bTagSF_Loose_btagSFlight_correlated",  "bTagSF_Loose_btagSFlight_uncorrelated",  "bTagSF_Medium_btagSFbc_correlated",  "bTagSF_Medium_btagSFbc_uncorrelated",  "bTagSF_Medium_btagSFlight_correlated",  "bTagSF_Medium_btagSFlight_uncorrelated",  "bTagSF_Tight_btagSFbc_correlated",  "bTagSF_Tight_btagSFbc_uncorrelated",  "bTagSF_Tight_btagSFlight_correlated",  "bTagSF_Tight_btagSFlight_uncorrelated","bTagShapeSF_lf","bTagShapeSF_hf","bTagShapeSF_lfstats1","bTagShapeSF_lfstats2","bTagShapeSF_hfstats1","bTagShapeSF_hfstats2","bTagShapeSF_cferr1","bTagShapeSF_cferr2"]
+unc_to_not_consider_boosted = ["bTagSF_Loose_btagSFbc_correlated",  "bTagSF_Loose_btagSFbc_uncorrelated",  "bTagSF_Loose_btagSFlight_correlated",  "bTagSF_Loose_btagSFlight_uncorrelated",  "bTagSF_Medium_btagSFbc_correlated",  "bTagSF_Medium_btagSFbc_uncorrelated",  "bTagSF_Medium_btagSFlight_correlated",  "bTagSF_Medium_btagSFlight_uncorrelated",  "bTagSF_Tight_btagSFbc_correlated",  "bTagSF_Tight_btagSFbc_uncorrelated",  "bTagSF_Tight_btagSFlight_correlated",  "bTagSF_Tight_btagSFlight_uncorrelated","bTagShapeSF_lf","bTagShapeSF_hf","bTagShapeSF_lfstats1","bTagShapeSF_lfstats2","bTagShapeSF_hfstats1","bTagShapeSF_hfstats2","bTagShapeSF_cferr1","bTagShapeSF_cferr2"]
 
 
 
@@ -82,11 +83,11 @@ def createKeyFilterDict(sample_cfg_dict):
 def QCD_Estimation(histograms, all_samples_list, channel, category, uncName, scale, wantNegativeContributions):
     #print(channel, category)
     #print(histograms.keys())
-    key_B_data = ((channel, 'OS_AntiIso', category), ('Central', 'Central'))
+    key_B_data = ((channel, 'OS_AntiIso', category), (uncName, scale))#('Central', 'Central'))
     key_B = ((channel, 'OS_AntiIso', category), (uncName, scale))
-    key_C_data = ((channel, 'SS_Iso', category), ('Central', 'Central'))
+    key_C_data = ((channel, 'SS_Iso', category), (uncName, scale))#('Central', 'Central'))
     key_C = ((channel, 'SS_Iso', category), (uncName, scale))
-    key_D_data = ((channel, 'SS_AntiIso', category), ('Central', 'Central'))
+    key_D_data = ((channel, 'SS_AntiIso', category), (uncName, scale))#('Central', 'Central'))
     key_D = ((channel, 'SS_AntiIso', category), (uncName, scale))
     hist_data = histograms['data']
     #print(hist_data.keys())
@@ -145,13 +146,13 @@ def QCD_Estimation(histograms, all_samples_list, channel, category, uncName, sca
 def CompareYields(histograms, all_samples_list, channel, category, uncName, scale):
     #print(channel, category)
     #print(histograms.keys())key_B_data = ((channel, 'OS_AntiIso', category), ('Central', 'Central'))
-    key_A_data = ((channel, 'OS_Iso', category), ('Central', 'Central'))
+    key_A_data = ((channel, 'OS_Iso', category), (uncName, scale))#('Central', 'Central'))
     key_A = ((channel, 'OS_Iso', category), (uncName, scale))
-    key_B_data = ((channel, 'OS_AntiIso', category), ('Central', 'Central'))
+    key_B_data = ((channel, 'OS_AntiIso', category), (uncName, scale))#('Central', 'Central'))
     key_B = ((channel, 'OS_AntiIso', category), (uncName, scale))
-    key_C_data = ((channel, 'SS_Iso', category), ('Central', 'Central'))
+    key_C_data = ((channel, 'SS_Iso', category), (uncName, scale))#('Central', 'Central'))
     key_C = ((channel, 'SS_Iso', category), (uncName, scale))
-    key_D_data = ((channel, 'SS_AntiIso', category), ('Central', 'Central'))
+    key_D_data = ((channel, 'SS_AntiIso', category), (uncName, scale))#('Central', 'Central'))
     key_D = ((channel, 'SS_AntiIso', category), (uncName, scale))
     hist_data = histograms['data']
     #print(hist_data.keys())
@@ -187,7 +188,7 @@ def CompareYields(histograms, all_samples_list, channel, category, uncName, scal
         print(f"{sample} || {key_C} || {n_sample_C}")
         print(f"{sample} || {key_D} || {n_sample_D}")
 
-def AddQCDInHistDict(var, all_histograms, channels, categories, sample_type, uncName, all_samples_list, scales, wantNegativeContributions=True):
+def AddQCDInHistDict(var, all_histograms, channels, categories, uncName, all_samples_list, scales, wantNegativeContributions=True):
     if 'QCD' not in all_histograms.keys():
             all_histograms['QCD'] = {}
     for channel in channels:

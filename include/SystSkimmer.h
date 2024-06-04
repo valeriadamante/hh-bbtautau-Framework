@@ -70,12 +70,18 @@ struct TupleMaker {
       std::cout << "TupleMaker::processIn: starting foreach." << std::endl;
       try {
         ROOT::RDF::RNode df = df_node;
+        int lk = 0 ;
         df.Foreach([&](const std::shared_ptr<Entry>& entry)  {
+          std::cout << "foreachongoing " << lk << std::endl;
+          lk+=1;
           if(!queue.Push(entry)) {
+            std::cout << "entry not found!!" << std::endl;
             throw StopLoop();
           }
         }, {"_entry"});
+      std::cout << "TupleMaker::processIn: done foreach." << std::endl;
       } catch(StopLoop) {
+        std::cout << "stop loop " << std::endl;
       } catch(std::exception& e) {
         std::cout << "TupleMaker::processIn: exception: " << e.what() << std::endl;
         throw;
