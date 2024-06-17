@@ -135,23 +135,18 @@ TTZZ:
 WWW_4F:
   sampleType: VVV
   hasExt1: True
-  sampleType: VVV
 WWZ_4F:
   sampleType: VVV
   hasExt1: True
-  sampleType: VVV
 WZZ:
   sampleType: VVV
   hasExt1: True
-  sampleType: VVV
 ZZZ:
   sampleType: VVV
   hasExt1: True
-  sampleType: VVV
 
 WJetsToLNu:
   sampleType: W
-  isReference: true
 W1JetsToLNu:
   sampleType: W
 W2JetsToLNu:
@@ -230,13 +225,13 @@ TTGG:
 TTZZTo4b:
   sampleType: TTVV
 TTZZTo4b:
-  hasExt1: True
   sampleType: TTVV
+  hasExt1: True
 TTZZToNon4b:
   sampleType: TTVV
 TTZHTo4b:
-  hasExt1: True
   sampleType: TTVV
+  hasExt1: True
 TTWH:
   sampleType: TTVH
 TTZHTo4b:

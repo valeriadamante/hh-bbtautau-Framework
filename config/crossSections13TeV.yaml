@@ -95,24 +95,24 @@ TTZToQQ_Dilept:
   reference: XSDB TTZToQQ_Dilept_TuneCP5_13TeV-amcatnlo-pythia8 modifiedOn 2021-06-21 09:58:18
   unc: 8.059e-05
 TTWW:
-  crossSec: 8380e-5+8357e-6
-  reference: Higgs_XSBR_YR4 LO
+  crossSec: 0.007003
+  reference: XSDB TTWW_TuneCP5_13TeV-madgraph-pythia8 modifiedOn 2021-06-21 09:55:05
   unc: 5.288e-06
 TTWZ:
-  crossSec: 2705e-6+1179e-6
-  reference: Higgs_XSBR_YR4
+  crossSec: 0.002453
+  reference: TTWZ_TuneCP5_13TeV-madgraph-pythia8 modifiedOn 2021-06-21 09:55:55
   unc: 1.623e-06
 TTWH:
-  crossSec: 493e-6+1089e-6
-  reference: Higgs_XSBR_YR4
-  unc: 6.007e-07
+  crossSec: 0.001252
+  reference: TTWH_TuneCP5_13TeV-madgraph-pythia8 modifiedOn 2024-04-03 19:49:28
+  unc: 4.375e-7
 TTZH:
-  crossSec: 1535e-6
-  reference: Higgs_XSBR_YR4
-  unc: 8.716e-07
+  crossSec: 0.001288
+  reference: TTZH_TuneCP5_13TeV-madgraph-pythia8 modifiedOn 2024-04-03 19:49:34
+  unc: 4.101e-7
 TTZZ:
-  crossSec: 1982e-6
-  reference: Higgs_XSBR_YR4
+  crossSec: 0.001386
+  reference: TTZZ_TuneCP5_13TeV-madgraph-pythia8 modifiedOn 2018-07-10 12:49:19
   unc: 1.28e-06
 WJetsToLNu_NNLO:
   crossSec: 66680.0 #67350.0

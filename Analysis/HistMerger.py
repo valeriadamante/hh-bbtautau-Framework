@@ -24,6 +24,7 @@ def checkLists(list1, list2):
             print(f"{item} in {list1} but not in {list2}")
             return False
     return True
+
 def checkFile(inFileRoot, channels, qcdRegions, categories, var):
     keys_channel = [str(key.GetName()) for key in inFileRoot.GetListOfKeys()]
     if not (checkLists(keys_channel, channels)):
@@ -215,6 +216,7 @@ if __name__ == "__main__":
     #parser.add_argument('datasetFile', nargs='+', type=str)
     parser.add_argument('--outFile', required=True, type=str)
     parser.add_argument('--jsonFile', required=True, type=str)
+    parser.add_argument('--year', required=True, type=str)
     parser.add_argument('--datasetFile', required=True, type=str)
     parser.add_argument('--var', required=True, type=str)
     parser.add_argument('--sampleConfig', required=True, type=str)
@@ -333,7 +335,10 @@ if __name__ == "__main__":
             if uncNameType != 'Central':
                 if sample_type == 'data' : continue
                 if uncScale == 'Central': continue
-                hist_name+=f"_{uncNameType}{uncScale}"
+                if args.year in uncNameType :
+                    hist_name+=f"_{uncNameType}_{uncScale}"
+                else:
+                    hist_name+=f"_{uncNameType}_{args.year}_{uncScale}"
             else:
                 if uncScale!='Central':continue
             hist.SetTitle(hist_name)

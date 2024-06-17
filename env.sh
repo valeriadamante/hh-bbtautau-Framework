@@ -195,10 +195,11 @@ action() {
     autoload bashcompinit
     bashcompinit
   fi
-  #source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.30.02/x86_64-almalinux9.3-gcc114-opt/bin/thisroot.sh
-  export MAMBA_ROOT_PREFIX=/afs/cern.ch/work/k/kandroso/micromamba
-  eval "$($MAMBA_ROOT_PREFIX/micromamba shell hook -s posix)"
-  micromamba activate hh
+  source /afs/cern.ch/work/k/kandroso/public/flaf_env/bin/activate
+  source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.30.06/x86_64-almalinux9.3-gcc114-opt/bin/thisroot.sh
+  # export MAMBA_ROOT_PREFIX=/afs/cern.ch/work/k/kandroso/micromamba
+  # eval "$($MAMBA_ROOT_PREFIX/micromamba shell hook -s posix)"
+  # micromamba activate hh
   run_cmd source /afs/cern.ch/user/m/mrieger/public/law_sw/setup.sh
   source "$( law completion )"
   source /cvmfs/cms.cern.ch/rucio/setup-py3.sh &> /dev/null
