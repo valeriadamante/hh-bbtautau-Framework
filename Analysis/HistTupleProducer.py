@@ -68,6 +68,7 @@ def createHistTuple(
     range,
     evtIds,
     histTupleDef,
+    isData,
 ):
     treeName = setup.global_params.get("treeName", "Events")
     unc_cfg_dict = setup.weights_config
@@ -139,6 +140,21 @@ def createHistTuple(
                 )
 
             dfw = histTupleDef.GetDfw(df, setup, dataset_name)
+
+            selection_tags = setup.global_params.get("histTuple_selectors", [])
+            selection_flags = []
+            for tag_name in selection_tags:
+                if not tag_name in setup.global_params:
+                    raise RuntimeError(f"HistTuple Selector {tag_name} doesn't exist!")
+                tags = setup.global_params[tag_name]
+                tag_flags = tags if isinstance(tags, list) else list(tags.keys())
+                if len(tag_flags) > 0:
+                    tag_flags_str = "(" + " || ".join(tag_flags) + ")"
+                    selection_flags.append(tag_flags_str)
+            if len(selection_flags) > 0:
+                selection_str = " && ".join(selection_flags)
+                dfw.df = dfw.df.Filter(selection_str, "events of interest")
+
             iter_descs = [
                 {"source": unc_source, "scale": unc_scale, "weight": "weight_Central"}
             ]
@@ -204,6 +220,7 @@ if __name__ == "__main__":
     parser.add_argument("--channels", type=str, default=None)
     parser.add_argument("--nEvents", type=int, default=None)
     parser.add_argument("--evtIds", type=str, default=None)
+    parser.add_argument("--LAWrunVersion", required=True, type=str)
 
     args = parser.parse_args()
     startTime = time.time()
@@ -211,7 +228,9 @@ if __name__ == "__main__":
     ROOT.gROOT.ProcessLine(".include " + os.environ["FLAF_PATH"])
     ROOT.gROOT.ProcessLine('#include "include/Utilities.h"')
 
-    setup = Setup.getGlobal(os.environ["ANALYSIS_PATH"], args.period)
+    setup = Setup.getGlobal(
+        os.environ["ANALYSIS_PATH"], args.period, args.LAWrunVersion
+    )
 
     setup.global_params["channels_to_consider"] = (
         args.channels.split(",")
@@ -230,6 +249,8 @@ if __name__ == "__main__":
         else "data"
     )
     setup.global_params["process_group"] = process_group
+
+    isData = process_group == "data"
 
     setup.global_params["compute_rel_weights"] = (
         args.compute_rel_weights and process_group != "data"
@@ -265,6 +286,7 @@ if __name__ == "__main__":
         range=args.nEvents,
         evtIds=args.evtIds,
         histTupleDef=histTupleDef,
+        isData=isData,
     )
     hadd_cmd = ["hadd", "-j", "-ff", args.outFile]
     hadd_cmd.extend(tmp_fileNames)
