@@ -46,50 +46,11 @@ class HistTupleProducerTask(Task, HTCondorWorkflow, law.LocalWorkflow):
 
             flatten_vars = set()
             for var in self.global_params["variables"]:
-                if isinstance(var, (list, tuple)):
-                    for v in var:
-                        if (
-                            "(" not in v
-                            and ")" not in v
-                            and "?" not in v
-                            and "*" not in v
-                            and "[" not in v
-                            and "{" not in v
-                        ):
-                            flatten_vars.add(v)
-                elif isinstance(var, dict):
-                    if "vars" in var:
-                        for v in var["vars"]:
-                            if (
-                                "(" not in v
-                                and ")" not in v
-                                and "?" not in v
-                                and "*" not in v
-                                and "[" not in v
-                                and "{" not in v
-                            ):
-                                flatten_vars.add(v)
-                    elif "name" in var:
-                        v = var["name"]
-                        if (
-                            "(" not in v
-                            and ")" not in v
-                            and "?" not in v
-                            and "*" not in v
-                            and "[" not in v
-                            and "{" not in v
-                        ):
-                            flatten_vars.add(v)
+                if isinstance(var, dict) and "vars" in var:
+                    for v in var["vars"]:
+                        flatten_vars.add(v)
                 else:
-                    if (
-                        "(" not in var
-                        and ")" not in var
-                        and "?" not in var
-                        and "*" not in var
-                        and "[" not in var
-                        and "{" not in var
-                    ):
-                        flatten_vars.add(var)
+                    flatten_vars.add(var)
 
             for var_name in flatten_vars:
                 producer_to_run = var_produced_by.get(var_name, None)
@@ -262,50 +223,11 @@ class HistTupleProducerTask(Task, HTCondorWorkflow, law.LocalWorkflow):
 
         flatten_vars = set()
         for var in self.global_params["variables"]:
-            if isinstance(var, (list, tuple)):
-                for v in var:
-                    if (
-                        "(" not in v
-                        and ")" not in v
-                        and "?" not in v
-                        and "*" not in v
-                        and "[" not in v
-                        and "{" not in v
-                    ):
-                        flatten_vars.add(v)
-            elif isinstance(var, dict):
-                if "vars" in var:
-                    for v in var["vars"]:
-                        if (
-                            "(" not in v
-                            and ")" not in v
-                            and "?" not in v
-                            and "*" not in v
-                            and "[" not in v
-                            and "{" not in v
-                        ):
-                            flatten_vars.add(v)
-                elif "name" in var:
-                    v = var["name"]
-                    if (
-                        "(" not in v
-                        and ")" not in v
-                        and "?" not in v
-                        and "*" not in v
-                        and "[" not in v
-                        and "{" not in v
-                    ):
-                        flatten_vars.add(v)
+            if isinstance(var, dict) and "vars" in var:
+                for v in var["vars"]:
+                    flatten_vars.add(v)
             else:
-                if (
-                    "(" not in var
-                    and ")" not in var
-                    and "?" not in var
-                    and "*" not in var
-                    and "[" not in var
-                    and "{" not in var
-                ):
-                    flatten_vars.add(var)
+                flatten_vars.add(var)
 
         producer_list = []
         aggregate_list = []
@@ -575,8 +497,6 @@ class HistFromNtupleProducerTask(Task, HTCondorWorkflow, law.LocalWorkflow):
         var, prod_br, dataset_name = self.branch_data
         if isinstance(var, dict):
             var = var["name"]
-        elif isinstance(var, (list, tuple)):
-            var = "_".join(var)
         output_path = os.path.join(
             self.version, "Hists_split", self.period, var, f"{dataset_name}.root"
         )
@@ -610,13 +530,7 @@ class HistFromNtupleProducerTask(Task, HTCondorWorkflow, law.LocalWorkflow):
             ]
 
             var = var if type(var) != dict else var["name"]
-            if isinstance(var, (list, tuple)):
-                var_arg = "[" + ",".join(f"'{v}'" for v in var) + "]"
-                var_filename = "_".join(var)
-            else:
-                var_arg = var
-                var_filename = var
-            tmpFile = os.path.join(job_home, f"HistFromNtuple_{var_filename}.root")
+            tmpFile = os.path.join(job_home, f"HistFromNtuple_{var}.root")
 
             HistFromNtupleProducer_cmd = [
                 "python3",
@@ -628,7 +542,7 @@ class HistFromNtupleProducerTask(Task, HTCondorWorkflow, law.LocalWorkflow):
                 "--channels",
                 channels,
                 "--var",
-                var_arg,
+                var,
                 "--dataset_name",
                 dataset_name,
                 "--LAWrunVersion",
@@ -742,8 +656,6 @@ class HistMergerTask(Task, HTCondorWorkflow, law.LocalWorkflow):
                 if isinstance(var_name, dict)
                 else var_name
             )
-            if isinstance(var_name, (list, tuple)):
-                var_name = "_".join(var_name)
             if var_name not in all_datasets.keys():
                 all_datasets[var_name] = []
             all_datasets[var_name].append((br_idx, current_dataset))
@@ -777,28 +689,6 @@ class HistMergerTask(Task, HTCondorWorkflow, law.LocalWorkflow):
         # Channels from the yaml are a list, but the format we need for the ps_call later is 'ch1,ch2,ch3', basically join into a string separated by comma
         if type(channels) == list:
             channels = ",".join(channels)
-
-        # Determine original variable specification for histogram naming (2D vs 1D)
-        original_var = None
-        for v in self.global_params.get("variables", []):
-            v_name = None
-            if isinstance(v, (list, tuple)):
-                v_name = "_".join(v)
-            elif isinstance(v, dict):
-                v_name = v.get("name", "")
-            else:
-                v_name = v
-            if v_name == var_name:
-                original_var = v
-                break
-        if original_var is None:
-            original_var = var_name
-        if isinstance(original_var, (list, tuple)):
-            var_arg = "[" + ",".join(f"'{v}'" for v in original_var) + "]"
-        elif isinstance(original_var, dict):
-            var_arg = original_var.get("name", var_name)
-        else:
-            var_arg = original_var
 
         uncNames = ["Central"]
         unc_cfg_dict = self.setup.weights_config
@@ -844,7 +734,7 @@ class HistMergerTask(Task, HTCondorWorkflow, law.LocalWorkflow):
                         "--outFile",
                         outFile.abspath,
                         "--var",
-                        var_arg,
+                        var_name,
                         "--dataset_names",
                         dataset_names,
                         "--uncSource",
@@ -869,7 +759,7 @@ class HistMergerTask(Task, HTCondorWorkflow, law.LocalWorkflow):
                         "--outFile",
                         tmp_outfile_merge,
                         "--var",
-                        var_arg,
+                        var_name,
                         "--dataset_names",
                         dataset_names,
                         "--uncSource",
@@ -1212,10 +1102,7 @@ class HistPlotTask(Task, HTCondorWorkflow, law.LocalWorkflow):
         ).create_branch_map()
         var_dict = {}
         for var in self.global_params["variables"]:
-            if isinstance(var, (list, tuple)):
-                var_name = "_".join(var)
-            else:
-                var_name = var if isinstance(var, str) else var["name"]
+            var_name = var if isinstance(var, str) else var["name"]
             var_dict[var_name] = var
         for k, (_, (var, _, _)) in enumerate(merge_map.items()):
             # Check if we want to plot this var in the global config
@@ -1229,62 +1116,30 @@ class HistPlotTask(Task, HTCondorWorkflow, law.LocalWorkflow):
     @workflow_condition.output
     def output(self):
         var = self.branch_data
-        if isinstance(var, (list, tuple)):
-            var = "_".join(var)
         outputs = {}
         customisation_dict = getCustomisationSplit(self.customisations)
 
-        ### channels
-        channels_base = []
-        if "channels" in self.global_params.keys():
-            channels_base = self.global_params["channels"].get("selection", [])
-        else:
-            channels_base = self.global_params["channelSelection"]
-        channels = customisation_dict.get("channels", channels_base)
+        channels = customisation_dict.get(
+            "channels", self.global_params["channelSelection"]
+        )
         if isinstance(channels, str):
             channels = channels.split(",")
 
-        ### categories + subcategories
-        base_cats = []
-        cat_key = (
-            "categories"
-            if "categories_to_select" not in self.global_params.keys()
-            else "categories_to_select"
-        )
-        if isinstance(self.global_params.get(cat_key), dict):
-            base_cats = list(self.global_params.get(cat_key).keys())
-        elif isinstance(self.global_params.get(cat_key), list):
-            base_cats = self.global_params.get(cat_key)
-
+        base_cats = self.global_params.get("categories") or []
         boosted_cats = self.global_params.get("boosted_categories") or []
+        categories = base_cats + boosted_cats
+        if isinstance(categories, str):
+            categories = categories.split(",")
 
-        custom_categories = self.global_params.get("custom_categories", [])
-        if isinstance(custom_categories, str):
-            custom_categories = self.global_params.get(custom_categories, [])
+        custom_region_name = self.global_params.get("custom_regions")
 
-        categories = base_cats + boosted_cats + custom_categories
-
-        custom_subcategories = self.global_params.get("custom_subcategories", [])
-
-        #### regions
-        regions_dict = self.global_params.get("regions", {})
-        regions_list = []
-        if isinstance(regions_dict, list):
-            regions_list = regions_dict
-        elif isinstance(regions_dict, str):
-            regions_list = regions_dict.split(",")
-        elif isinstance(regions_dict, dict):
-            for macro_region, macro_region_dict in regions_dict.items():
-                regions_list.extend(list(macro_region_dict.keys()))
-
-        if customisation_dict.get("custom_regions", None):
-            regions_list.append(
-                r for r in customisation_dict["custom_regions"].split(",")
-            )
+        custom_regions = customisation_dict.get(
+            custom_region_name, self.global_params[custom_region_name]
+        )
 
         for ch in channels:
             for cat in categories:
-                for custom_region in regions_list:
+                for custom_region in custom_regions:
                     rel_path = os.path.join(
                         self.version,
                         "Plots",
@@ -1301,8 +1156,6 @@ class HistPlotTask(Task, HTCondorWorkflow, law.LocalWorkflow):
 
     def run(self):
         var = self.branch_data
-        if isinstance(var, (list, tuple)):
-            var = "_".join(var)
         era = self.period
         ver = self.version
         customisation_dict = getCustomisationSplit(self.customisations)

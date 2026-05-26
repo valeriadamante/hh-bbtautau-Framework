@@ -148,60 +148,34 @@ if __name__ == "__main__":
     # Controlregions = list(global_cfg_dict['ControlRegions']) #Later maybe we want to separate Controls from QCDs
 
     # Regions def
-    regions_dict = global_cfg_dict.get("regions", None)
+    regions_name = global_cfg_dict.get(
+        "regions", None
+    )  # can be extended to list of names, if for example adding QCD regions + other control regions
     regions = []
-    if isinstance(regions_dict, dict):
-        regions_name = (
-            list(regions_dict.keys()) if regions_dict else []
-        )  # can be extended to list of names, if for example adding QCD regions + other control regions
-        if regions_name:
-            for r in regions_name:
-                subregions = regions_dict[r].keys()
-                regions.extend(list())
-    elif isinstance(regions_dict, str):
-        regions_name = regions_dict.split(",")
-        if regions_name:
-            regions.extend(list(global_cfg_dict.get(regions_name, [])))
-    elif isinstance(regions_dict, list):
-        regions_name = regions_dict
-        if regions_name:
-            regions.extend(list(global_cfg_dict.get(regions_name, [])))
-
+    if regions_name:
+        regions = list(global_cfg_dict.get(regions_name, []))
         if not regions:
             print("No custom regions found")
 
     # Categories def
-    categories = []
-
-    base_cats = []
-    cat_key = (
-        "categories"
-        if "categories_to_select" not in global_cfg_dict.keys()
-        else "categories_to_select"
-    )
-    if isinstance(global_cfg_dict.get(cat_key), dict):
-        base_cats = list(global_cfg_dict.get(cat_key).keys())
-    elif isinstance(global_cfg_dict.get(cat_key), list):
-        base_cats = global_cfg_dict.get(cat_key)
-
-    boosted_cats = global_cfg_dict.get("boosted_categories") or []
-
-    custom_categories = global_cfg_dict.get("custom_categories", [])
-    if isinstance(custom_categories, str):
-        custom_categories = global_cfg_dict.get(custom_categories, [])
-
-    all_categories = base_cats + boosted_cats + custom_categories
+    categories = list(global_cfg_dict["categories"])
+    # custom_categories_name = global_cfg_dict.get(
+    #     "custom_categories", None
+    # )  # can be extended to list of names
+    # custom_categories = []
+    # if custom_categories_name:
+    #     custom_categories = list(global_cfg_dict.get(custom_categories_name, []))
+    #     if not custom_categories:
+    #         print("No custom categories found")
+    all_categories = categories  # + custom_categories
 
     # Channels def
-
-    channels_base = []
-    if "channels" in global_cfg_dict.keys():
-        channels_base = global_cfg_dict["channels"].get("selection", [])
-    else:
-        channels_base = global_cfg_dict["channelSelection"]
-    channels = []
-    if isinstance(channels, str):
-        channels = channels.split(",")
+    setup.global_params["channels_to_consider"] = (
+        args.channels.split(",")
+        if args.channels
+        else setup.global_params["channelSelection"]
+    )
+    channels = setup.global_params["channels_to_consider"]
 
     # Variables exception def
     custom_variables = global_cfg_dict.get(
